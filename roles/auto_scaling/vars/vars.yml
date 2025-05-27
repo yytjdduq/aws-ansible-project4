@@ -1,0 +1,5 @@
+region: "ap-northeast-2"
+subnet_private2a: "subnet-0c405439554057627"
+subnet_private2c: "subnet-0d07b2f2cc1a9d1c6"
+alb_target_group_arn: "arn:aws:elasticloadbalancing:ap-northeast-2:491085389788:targetgroup/project4-target/20a149c7279cf53c"
+instance_tag_value: project4-auto-scaling

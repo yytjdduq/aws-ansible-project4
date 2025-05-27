@@ -1,0 +1,3 @@
+region: "ap-northeast-2"
+alb_dns_name: "project4-alb-1894403211.ap-northeast-2.elb.amazonaws.com"
+alb_zone_id: "ZWKZPGTI48KDX"

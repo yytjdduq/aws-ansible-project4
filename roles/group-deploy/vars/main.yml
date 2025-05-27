@@ -1,0 +1,9 @@
+region: "ap-northeast-2"
+key: "project4-key"
+cidr_block: 10.4.0.0/16
+vpc_id: "vpc-0886c2722cc1c9d1f"
+public_subnet_1_cidr: "10.4.0.0/20"
+public_subnet_2_cidr: "10.4.16.0/20"
+private_subnet_1_cidr: "10.4.64.0/20"
+private_subnet_2_cidr: "10.4.80.0/20"
+aws_account_id: 491085389788

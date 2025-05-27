@@ -1,0 +1,6 @@
+- hosts: localhost
+  # - ../roles/eip/vars/pass.yml
+  
+  roles:
+    - ../roles/dns
+

@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/s3/vars/main.yml
+    - ../roles/s3/vars/pass.yml
+  
+  roles:
+    - ../roles/s3
+

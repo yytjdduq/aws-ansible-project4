@@ -9,4 +9,3 @@ security_groups:
   - "sg-03902efaf8e52f24f"
 ansible_ssh_private_key_file: "~/project4-key.pem"
 ansible_user: "ubuntu"
-

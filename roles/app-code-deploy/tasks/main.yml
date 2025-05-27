@@ -1,0 +1,29 @@
+---
+- block:
+    - name: CodeDeploy 애플리케이션 생성 (project4-application)
+      command: >
+        aws deploy create-application
+        --application-name project4-application
+        --compute-platform Server
+        --region {{ region }}
+      register: create_app_result
+      changed_when: "'applicationId' in create_app_result.stdout"
+
+    - name: 생성 결과 출력
+      debug:
+        var: create_app_result.stdout
+  when: state == "create"
+
+- block:
+    - name: CodeDeploy 애플리케이션 삭제 (project4-application)
+      command: >
+        aws deploy delete-application
+        --application-name project4-application
+        --region {{ region }}
+      register: delete_app_result
+
+    - name: 삭제 결과 출력
+      debug:
+        var: delete_app_result.stdout
+  when: state == "delete"
+

@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/Route53/vars/vars.yml
+    - ../roles/Route53/vars/pass.yml
+
+
+  roles:
+    - ../roles/Route53

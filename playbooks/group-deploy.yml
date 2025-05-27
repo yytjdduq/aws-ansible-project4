@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/group-deploy/vars/main.yml
+    - ../roles/group-deploy/vars/pass.yml
+  
+  roles:
+    - ../roles/group-deploy
+

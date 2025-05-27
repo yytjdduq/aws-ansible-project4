@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/ec2-IAM/vars/pass.yml
+
+  
+  roles:
+    - ../roles/ec2-IAM
+

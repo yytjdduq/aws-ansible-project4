@@ -1,0 +1,45 @@
+---
+- block:
+    - name: CodeDeploy 배포 그룹 생성 (project4-production-in_place)
+      command: >
+        aws deploy create-deployment-group
+        --application-name project4-application
+        --deployment-group-name project4-production-in_place
+        --deployment-config-name CodeDeployDefault.OneAtATime
+        --deployment-style deploymentType=IN_PLACE,deploymentOption=WITH_TRAFFIC_CONTROL
+        --load-balancer-info targetGroupInfoList=[{name=target}]
+        --service-role-arn arn:aws:iam::{{ aws_account_id }}:role/project4-code-deploy-service-role
+        --region {{ region }}
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+        AWS_DEFAULT_REGION: "{{ region }}"
+      register: create_deployment_group_result
+      changed_when: "'deploymentGroupId' in create_deployment_group_result.stdout"
+      failed_when: "create_deployment_group_result.rc != 0 and 'already exists' not in create_deployment_group_result.stderr"
+
+    - name: 생성된 배포 그룹 정보 출력
+      debug:
+        var: create_deployment_group_result.stdout
+  when: state == "create"
+
+- block:
+    - name: CodeDeploy 배포 그룹 삭제 (project4-production-in_place)
+      command: >
+        aws deploy delete-deployment-group
+        --application-name project4-application
+        --deployment-group-name project4-production-in_place
+        --region {{ region }}
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+        AWS_DEFAULT_REGION: "{{ region }}"
+      register: delete_deployment_group_result
+      changed_when: "delete_deployment_group_result.rc == 0"
+      failed_when: "delete_deployment_group_result.rc != 0 and 'does not exist' not in delete_deployment_group_result.stderr"
+
+    - name: 삭제된 배포 그룹 정보 출력
+      debug:
+        var: delete_deployment_group_result.stdout
+  when: state == "delete"
+

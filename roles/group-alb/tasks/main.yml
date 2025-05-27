@@ -81,10 +81,9 @@
       loop: "{{ target_instance_info.instances }}"
 
   when: state == "create"
-
 - block:
     - name: Get Jenkins Target Group info by name
-      amazon.aws.elb_target_group_info:
+      community.aws.elb_target_group_info:
         names:
           - "project4-jenkins"
         region: "{{ region }}"
@@ -94,7 +93,7 @@
       delegate_to: localhost
 
     - name: Get Target Target Group info by name
-      amazon.aws.elb_target_group_info:
+      community.aws.elb_target_group_info:
         names:
           - "project4-target"
         region: "{{ region }}"
@@ -102,12 +101,13 @@
         aws_secret_key: "{{ aws_secret_key }}"
       register: target_group_info2
       delegate_to: localhost
+    
 
     - name: Get Jenkins EC2 instance info by tag for deregistration
       amazon.aws.ec2_instance_info:
         region: "{{ region }}"
         filters:
-          "tag:Name": "project4-jenkins-ec2"
+          "tag:Name": "project4-jenkins"
           instance-state-name: running
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
@@ -118,7 +118,7 @@
       amazon.aws.ec2_instance_info:
         region: "{{ region }}"
         filters:
-          "tag:Name": "project4-target-ec2"
+          "tag:Name": "target-ec2"
           instance-state-name: running
         aws_access_key: "{{ aws_access_key }}"
         aws_secret_key: "{{ aws_secret_key }}"
@@ -166,4 +166,3 @@
       delegate_to: localhost
 
   when: state == "delete"
-

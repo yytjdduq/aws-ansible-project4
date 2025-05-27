@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/auto_scaling/vars/vars.yml
+    - ../roles/auto_scaling/vars/pass.yml
+  
+  roles:
+    - ../roles/auto_scaling
+

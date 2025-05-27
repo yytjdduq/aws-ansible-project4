@@ -1,0 +1,13 @@
+---
+- name: Create A record alias for Application/Classic Load Balancer in jinlabs.net zone
+  amazon.aws.route53:
+    state: present
+    zone: jinlabs.net
+    record: project4.jinlabs.net
+    type: A
+    alias: true
+    value: "{{ alb_dns_name }}"
+    alias_hosted_zone_id: "{{ alb_zone_id }}"  # ELB의 Hosted Zone ID (실제 값으로 교체 필요)
+    alias_evaluate_target_health: true
+  delegate_to: localhost
+  when: state == "create"

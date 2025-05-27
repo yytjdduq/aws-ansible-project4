@@ -22,7 +22,7 @@
       secret_key: "{{ aws_secret_key }}"
       region: "{{ region }}"
     register: create_policy_result
-    when: state == "create"
+    when: state == "test"
 
 ############################### 역할 생성 ###############################
 
@@ -54,6 +54,36 @@
       aws_access_key: "{{ aws_access_key }}"
       aws_secret_key: "{{ aws_secret_key }}"
     when: state == "create"
+
+  - name: Create instance profile
+    amazon.aws.iam_instance_profile:
+      name: project4-code-deploy-ec2-role
+      state: present
+      region: "{{ region }}"
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+    when: state == "create"
+
+
+  - name: Attach IAM role to instance profile
+    amazon.aws.iam_instance_profile:
+      name: project4-code-deploy-ec2-role
+      role: project4-code-deploy-ec2-role
+      state: present
+      region: "{{ region }}"
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+    when: state == "create"
+
+  - name: Get instance profile information
+    amazon.aws.iam_instance_profile_info:
+      name: project4-code-deploy-ec2-role  
+      region: "{{ region }}"
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+    register: instance_profile_info
+    when: state == "create"
+
 
   - name: Print message -  # 삭제 메세지
     debug:

@@ -1,0 +1,33 @@
+- block:
+    - name: Create S3 Bucket for Project4
+      amazon.aws.s3_bucket:
+        name: "project4-bucket-tg"  # 고유한 버킷 이름
+        state: present
+        region: "{{ region }}"  # 리전 변수 (예: ap-northeast-2)
+        versioning: no          # 버전 관리 비활성화 (필요 시 yes로 변경)
+        encryption: AES256      # 서버 측 암호화 설정 (선택 사항)
+        public_access:
+          block_public_acls: true
+          ignore_public_acls: true
+          block_public_policy: true
+          restrict_public_buckets: true  # 퍼블릭 액세스 차단 설정
+        tags:
+          Name: "project4-bucket-tg"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: s3_bucket_info
+      delegate_to: localhost
+  when: state == "create"
+
+- block:
+    - name: Delete S3 Bucket for Project4
+      amazon.aws.s3_bucket:
+        name: "project4-bucket-tg"  # 삭제할 버킷 이름
+        state: absent           # 버킷 삭제
+        region: "{{ region }}"  # 리전 변수 (예: ap-northeast-2)
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: s3_bucket_delete_info
+      delegate_to: localhost
+  when: state == "delete"
+

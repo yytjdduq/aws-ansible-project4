@@ -16,9 +16,11 @@
         instance_type: t2.micro
         key_name: "{{ key_name }}"
         network_interfaces:
-          - associate_public_ip_address: false
+          - device_index: 0
+            associate_public_ip_address: false
             subnet_id: "{{ subnet_private1_id }}"
             groups: "{{ security_groups }}"
+        iam_instance_profile: project4-code-deploy-ec2-role
         tags:
           Name: project4-launch-template
         region: "{{ region }}"
@@ -27,6 +29,7 @@
         state: present
       register: launch_template_info
   when: state == "create"
+
 - block:
     - name: Delete Launch Template
       amazon.aws.ec2_launch_template:

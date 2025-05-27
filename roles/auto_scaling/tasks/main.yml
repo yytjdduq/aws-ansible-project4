@@ -1,0 +1,46 @@
+- name: Create Auto Scaling Group using existing Launch Template
+  community.aws.autoscaling_group:
+    name: project4-autoscaling-group
+    launch_template:
+      launch_template_name: project4-launch-template
+      version: '$Latest'
+    min_size: 3
+    max_size: 3
+    desired_capacity: 3
+    vpc_zone_identifier:
+      - "{{ subnet_private2a }}"
+      - "{{ subnet_private2c }}"
+    target_group_arns:
+      - "{{ alb_target_group_arn }}"
+    tags:   # 이게 launch_template 아래 있으면 안 됨!
+      - key: Name
+        value: project4-auto-scaling
+        propagate_at_launch: true
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: present
+  when: state == "create"
+
+- name: Get all instances launched by ASG
+  amazon.aws.ec2_instance_info:
+    region: "{{ region }}"
+    filters:
+      "tag:aws:autoscaling:groupName": "project4-autoscaling-group"
+      instance-state-name: running
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  register: ec2_info
+  when: state == "create"
+
+- name: Add Name tag to instances
+  amazon.aws.ec2_tag:
+    region: "{{ region }}"
+    resource: "{{ item.instance_id }}"
+    tags:
+      Name: "{{ instance_tag_value }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  loop: "{{ ec2_info.instances }}"
+  when: state == "create"
+
