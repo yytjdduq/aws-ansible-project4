@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/jenkins-ec2/vars/pass.yml
+    - ../roles/jenkins-ec2/vars/main.yml
+
+  roles:
+    - ../roles/jenkins-ec2

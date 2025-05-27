@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/subnet/vars/main.yml
+    - ../roles/subnet/vars/pass.yml
+  
+  roles:
+    - ../roles/subnet

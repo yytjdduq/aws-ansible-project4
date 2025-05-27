@@ -1,0 +1,70 @@
+---
+  - name: Create the IAM policy     # policy 정책 생성.
+    amazon.aws.iam_managed_policy:
+      state: present
+      policy_name: "project4-code-deploy-ec2-policy"
+      policy: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "s3:*",
+                "s3-object-lambda:*"
+              ],
+              "Resource": "*"
+            }
+          ]
+        }
+      description: "IAM policy for EC2 to access S3 and S3 Object Lambda, created via Ansible"
+      access_key: "{{ aws_access_key }}"
+      secret_key: "{{ aws_secret_key }}"
+      region: "{{ region }}"
+    register: create_policy_result
+    when: state == "create"
+
+############################### 역할 생성 ###############################
+
+  - name: Print message  # 생성 메세지
+    debug:
+      msg: "code-deploy-ec2-role 생성(create)중입니다."
+    when: state == "create"
+
+  - name: Create IAM Role for CodeDeploy EC2  # IAM 역할 생성
+    amazon.aws.iam_role:
+      name: project4-code-deploy-ec2-role  # 역할 이름 지정
+      assume_role_policy_document: |
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        }
+      managed_policy:
+        - project4-code-deploy-ec2-policy
+      state: present
+      region: "{{ region }}"
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+    when: state == "create"
+
+  - name: Print message -  # 삭제 메세지
+    debug:
+      msg: "code-deploy-ec2-role 삭제(delete)중입니다."
+    when: state == "delete"
+
+  - name: Delete IAM Role for CodeDeploy EC2  # IAM 역할 삭제
+    amazon.aws.iam_role:
+      name: project4-code-deploy-ec2-role  # 삭제할 역할 이름
+      state: absent
+      region: "{{ region }}"
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+    when: state == "delete"

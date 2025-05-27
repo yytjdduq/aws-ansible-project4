@@ -1,0 +1,4 @@
+region: "ap-northeast-2"
+vpc_name: "project4-vpc"
+sg_name: "project4-Jenkins-Accept"
+sg_description: "Jenkins-CI/CD"

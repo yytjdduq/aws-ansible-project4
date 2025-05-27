@@ -1,0 +1,6 @@
+region: "ap-northeast-2"
+key: "project4-key"
+subnet_public1_id: "subnet-0511b1d8af562b09e"
+ami_id: "ami-05a7f3469a7653972"           
+security_groups:                         
+  - "sg-001683a631b0d5b38"

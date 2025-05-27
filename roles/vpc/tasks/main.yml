@@ -1,0 +1,43 @@
+---
+- name: Create VPC
+  amazon.aws.ec2_vpc_net:
+    name: project4-vpc
+    cidr_block: "{{ cidr_block }}"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tenancy: default
+    tags:
+      Name: project4-vpc
+  register: vpc
+  when: state == "create"
+
+- name: Check VPC
+  amazon.aws.ec2_vpc_net_info:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    filters:
+      "tag:Name": project4-vpc
+
+- name: Debug VPC
+  ansible.builtin.debug:
+    var: vpc
+
+- name: set facts
+  set_fact:
+    vpc: "{{ vpc }}"
+      
+- name: Delete VPC
+  amazon.aws.ec2_vpc_net:
+    name: project4-vpc
+    region: "{{ region }}"
+    cidr_block: "{{ cidr_block }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    state: absent
+    purge_cidrs: true 
+  ignore_errors: no
+  when: state == "delete"
+
+

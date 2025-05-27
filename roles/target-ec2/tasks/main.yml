@@ -1,0 +1,33 @@
+---
+- block:
+    - name: Create Target EC2 Instance
+      amazon.aws.ec2_instance:
+        name: project4-target-ec2
+        key_name: "{{ key_name }}"
+        region: "{{ region }}"
+        instance_type: t2.micro
+        image_id: "{{ image_id }}"
+        vpc_subnet_id: "{{ subnet_private1_id }}"
+        security_groups: "{{ security_groups }}"   # 리스트 형태
+        tags:
+          Name: project4-target-ec2
+        wait: yes
+        count: 1
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        user_data: "{{ lookup('file', 'files/install_docker_codedeploy.sh') | replace('{{ region }}', region) }}"
+      register: ec2_info
+  when: state == "create"
+- block:
+    - name: Delete Target EC2 Instance
+      amazon.aws.ec2_instance:
+        name: project4-target-ec2
+        vpc_subnet_id: "{{ subnet_private1_id }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        state: absent
+        wait: yes
+      register: delete_result
+  when: state == "delete"
+

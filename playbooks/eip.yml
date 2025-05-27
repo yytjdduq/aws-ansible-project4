@@ -1,0 +1,8 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/eip/vars/main.yml
+    - ../roles/eip/vars/pass.yml
+  
+  roles:
+    - ../roles/eip
+

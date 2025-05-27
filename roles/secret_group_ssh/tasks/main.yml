@@ -1,0 +1,75 @@
+---
+- name: msg   # VPC 정보 조회 메세지지
+  debug:
+    msg: "project4-vpc 조회 시작합니다."
+
+- name: Get VPC ID by name   # project4-vpc의 정보를 조회회
+  amazon.aws.ec2_vpc_net_info:
+    region: "{{ region }}"
+    filters:
+      "tag:Name": "{{ vpc_name }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  register: vpc_info
+  when: state == "create"
+
+
+- name: msg   # SSH 보안 그룹 생성 메세지
+  debug:
+    msg: "SSH 보안 그룹 생성 시작합니다."
+  when: state == "create"
+
+- name: Create security group   # sg 보안그룹 만들기
+  amazon.aws.ec2_security_group:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    name: "{{ sg_name }}"
+    description: "{{ sg_description }}"
+    vpc_id: "{{ vpc_info.vpcs[0].id }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+    state: present
+  register: sg_result
+  when: state == "create"
+
+- name: Tag the security group with Name = sg_name    # sg 보안그룹 태그 달기
+  amazon.aws.ec2_tag:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    resource: "{{ sg_result.group_id }}"  # 'Create security group' 태스크에서 등록된 보안 그룹의 group_id 값을 가져옴
+    tags:
+      Name: "{{ sg_name }}"
+  when: state == "create"
+
+- name: msg   # SSH 보안 그룹 삭제 메세지
+  debug:
+    msg: "SSH 보안 그룹 삭제 시작합니다."
+  when: state == "delete"
+
+- name: Find security group by name  # 이름으로 보안 그룹을 찾기
+  amazon.aws.ec2_security_group_info:  # AWS EC2 보안 그룹 정보를 조회하는 모듈
+    region: "{{ region }}"
+    filters:
+      group-name: "{{ sg_name }}"      
+    aws_access_key: "{{ aws_access_key }}"       
+    aws_secret_key: "{{ aws_secret_key }}"       
+  register: sg_result   # 조회 결과를 sg_result 변수에 저장
+  when: state == "delete"   
+
+
+- name: Delete security group   # 보안그룹 삭제 태스크
+  amazon.aws.ec2_security_group:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    region: "{{ region }}"
+    state: absent
+    group_id: "{{ sg_result.security_groups[0].group_id }}"
+  when:
+    - state == "delete"
+    - sg_result.security_groups | length > 0
+

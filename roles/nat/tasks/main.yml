@@ -1,0 +1,57 @@
+---
+- name: Find public subnet 1 ID by tag
+  amazon.aws.ec2_vpc_subnet_info:
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    filters:
+      "tag:Name": "project4-subnet-public1-ap-northeast-2a"
+  register: subnet_info
+  when: state == "create"
+
+- name: Find EIP Public IP by tag
+  amazon.aws.ec2_eip_info:
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    filters:
+      "tag:Name": "project4-eip"
+  register: eip_info
+  when: state == "create"
+
+- name: Create NAT Gateway
+  amazon.aws.ec2_vpc_nat_gateway:
+    subnet_id: "{{ subnet_info.subnets[0].id }}"
+    state: present
+    region: "{{ region }}"
+    allocation_id: "{{ eip_info.addresses[0].allocation_id }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tags:
+      Name: project4-natgw
+  register: natgw_result
+  when: state == "create"
+
+- name: Find NAT Gateway by Name tag
+  amazon.aws.ec2_vpc_nat_gateway_info:
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    filters:
+      "tag:Name": "project4-natgw"
+  register: natgw_info
+  when: state == "delete"
+
+- name: Debug natgw_info
+  debug:
+    var: natgw_info
+  when: state == "delete"
+
+- name: Delete NAT Gateway
+  amazon.aws.ec2_vpc_nat_gateway:
+    nat_gateway_id: "{{ natgw_info.result[0].nat_gateway_id }}"
+    state: absent
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "delete"

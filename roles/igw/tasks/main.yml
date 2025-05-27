@@ -1,0 +1,23 @@
+---
+- name: Create and attach Internet Gateway to project4-vpc
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ vpc_id }}"
+    state: present
+    region: "{{ region }}"
+    tags:
+      Name: project4-igw
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "create"    
+
+- name: Detach and delete Internet Gateway from project4-vpc
+  amazon.aws.ec2_vpc_igw:
+    vpc_id: "{{ vpc_id }}"
+    state: absent
+    region: "{{ region }}"
+    tags:
+      Name: project4-igw
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "delete"    
+

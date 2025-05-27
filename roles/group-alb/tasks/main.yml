@@ -1,0 +1,169 @@
+---
+- block:
+    - name: Create Target Group for ALB (Jenkins)
+      community.aws.elb_target_group:
+        name: project4-jenkins
+        protocol: HTTP
+        port: 8080
+        vpc_id: "{{ vpc_id }}"
+        target_type: instance
+        health_check_protocol: HTTP
+        health_check_path: /
+        health_check_port: 8080
+        region: "{{ region }}"
+        state: present
+        tags:
+          Name: project4-jenkins
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: target_group_info1
+
+    - name: Create Target Group for ALB (Target)
+      community.aws.elb_target_group:
+        name: project4-target
+        protocol: HTTP
+        port: 80
+        vpc_id: "{{ vpc_id }}"
+        target_type: instance
+        health_check_protocol: HTTP
+        health_check_path: /
+        health_check_port: 80
+        region: "{{ region }}"
+        state: present
+        tags:
+          Name: project4-target
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: target_group_info2
+
+    - name: Get Jenkins EC2 instance info by tag
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:Name": "project4-jenkins-ec2"
+          instance-state-name: running
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: jenkins_instance_info
+      delegate_to: localhost
+
+    - name: Get Target EC2 instance info by tag
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:Name": "project4-target-ec2"
+          instance-state-name: running
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: target_instance_info
+      delegate_to: localhost
+
+    - name: Register Jenkins EC2 instance to project4-jenkins Target Group
+      community.aws.elb_target:
+        target_group_arn: "{{ target_group_info1.target_group_arn }}"
+        target_id: "{{ item.instance_id }}"
+        target_port: 8080
+        region: "{{ region }}"
+        state: present
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      loop: "{{ jenkins_instance_info.instances }}"
+
+    - name: Register Target EC2 instance to project4-target Target Group
+      community.aws.elb_target:
+        target_group_arn: "{{ target_group_info2.target_group_arn }}"
+        target_id: "{{ item.instance_id }}"
+        target_port: 80
+        region: "{{ region }}"
+        state: present
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      loop: "{{ target_instance_info.instances }}"
+
+  when: state == "create"
+
+- block:
+    - name: Get Jenkins Target Group info by name
+      amazon.aws.elb_target_group_info:
+        names:
+          - "project4-jenkins"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: target_group_info1
+      delegate_to: localhost
+
+    - name: Get Target Target Group info by name
+      amazon.aws.elb_target_group_info:
+        names:
+          - "project4-target"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: target_group_info2
+      delegate_to: localhost
+
+    - name: Get Jenkins EC2 instance info by tag for deregistration
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:Name": "project4-jenkins-ec2"
+          instance-state-name: running
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: jenkins_instance_info
+      delegate_to: localhost
+
+    - name: Get Target EC2 instance info by tag for deregistration
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          "tag:Name": "project4-target-ec2"
+          instance-state-name: running
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: target_instance_info
+      delegate_to: localhost
+
+    - name: Deregister Jenkins EC2 instance from project4-jenkins Target Group
+      community.aws.elb_target:
+        target_group_arn: "{{ target_group_info1.target_groups[0].target_group_arn }}"
+        target_id: "{{ item.instance_id }}"
+        target_port: 8080
+        region: "{{ region }}"
+        state: absent
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      loop: "{{ jenkins_instance_info.instances }}"
+
+    - name: Deregister Target EC2 instance from project4-target Target Group
+      community.aws.elb_target:
+        target_group_arn: "{{ target_group_info2.target_groups[0].target_group_arn }}"
+        target_id: "{{ item.instance_id }}"
+        target_port: 80
+        region: "{{ region }}"
+        state: absent
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      loop: "{{ target_instance_info.instances }}"
+
+    - name: Delete Target Group for ALB (Jenkins)
+      community.aws.elb_target_group:
+        name: project4-jenkins
+        region: "{{ region }}"
+        state: absent
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      delegate_to: localhost
+
+    - name: Delete Target Group for ALB (Target)
+      community.aws.elb_target_group:
+        name: project4-target
+        region: "{{ region }}"
+        state: absent
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      delegate_to: localhost
+
+  when: state == "delete"
+

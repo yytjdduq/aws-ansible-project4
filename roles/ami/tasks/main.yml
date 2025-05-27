@@ -1,0 +1,46 @@
+---
+- block:
+    - name: Target EC2 Instance 정보 조회
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        filters:
+          "tag:Name": "project4-target-ec2"
+      register: ec2_info
+
+    - name: Create AMI from Target EC2 Instance
+      amazon.aws.ec2_ami:
+        instance_id: "{{ ec2_info.instances[0].instance_id }}"
+        name: "project4-ami"
+        wait: yes
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        tags:
+          Name: project4-ami
+      register: ami_info
+  when: state == "create"
+- block:
+    - name: AMI 정보 조회
+      amazon.aws.ec2_ami_info:
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        filters:
+          "tag:Name": "project4-ami"
+      register: ami_info
+
+    - name: Delete AMI
+      amazon.aws.ec2_ami:
+        image_id: "{{ ami_info.images[0].image_id }}"
+        state: absent
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      when:
+        - ami_info.images is defined
+        - ami_info.images | length > 0
+      register: delete_ami_result
+  when: state == "delete"
+

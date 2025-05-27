@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/nat/vars/main.yml
+    - ../roles/nat/vars/pass.yml
+  
+  roles:
+    - ../roles/nat

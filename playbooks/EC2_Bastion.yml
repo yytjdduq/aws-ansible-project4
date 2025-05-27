@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/EC2_Bastion/vars/vars.yml
+    - ../roles/EC2_Bastion/vars/pass.yml
+
+  roles:
+    - ../roles/EC2_Bastion

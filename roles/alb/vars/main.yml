@@ -1,0 +1,12 @@
+---
+key_name: "project4-key"
+region: "ap-northeast-2"
+image_id: "ami-05a7f3469a7653972"
+subnet_public1_id: "subnet-0511b1d8af562b09e"
+subnet_public2_id: "subnet-035afebb1aaaedb95"
+security_groups:
+  - "sg-0e8b2e63ecdb80bdf"  # http
+  - "sg-03902efaf8e52f24f"  #jenkins
+ansible_ssh_private_key_file: "~/project4-key.pem"
+ansible_user: "ubuntu"
+

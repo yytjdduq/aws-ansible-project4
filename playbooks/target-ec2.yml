@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/target-ec2/vars/pass.yml
+    - ../roles/target-ec2/vars/main.yml
+
+  roles:
+    - ../roles/target-ec2

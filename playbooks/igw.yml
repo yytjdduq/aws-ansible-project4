@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/igw/vars/main.yml
+    - ../roles/igw/vars/pass.yml
+  
+  roles:
+    - ../roles/igw

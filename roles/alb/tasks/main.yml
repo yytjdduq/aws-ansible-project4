@@ -1,0 +1,40 @@
+- block:
+    - name: Create Application Load Balancer (ALB) with Listeners
+      community.aws.elb_application_lb:
+        name: project4-alb
+        subnets:
+          - "{{ subnet_public1_id }}"
+          - "{{ subnet_public2_id }}"
+        security_groups:
+          - sg-0e8b2e63ecdb80bdf
+          - sg-03902efaf8e52f24f
+        scheme: internet-facing
+        listeners:
+          - Protocol: HTTP
+            Port: 80
+            DefaultActions:
+              - Type: forward
+                TargetGroupName: project4-target
+          - Protocol: HTTP
+            Port: 8080
+            DefaultActions:
+              - Type: forward
+                TargetGroupName: project4-jenkins
+        state: present
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: alb_info
+  when: state == "create"
+
+- block:
+    - name: Delete Application Load Balancer (ALB)
+      community.aws.elb_application_lb:
+        name: project4-alb
+        state: absent
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: delete_alb_result
+  when: state == "delete"
+

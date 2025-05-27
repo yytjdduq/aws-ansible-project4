@@ -1,0 +1,7 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/vpc/vars/main.yml
+    - ../roles/vpc/vars/pass.yml
+  
+  roles:
+    - ../roles/vpc

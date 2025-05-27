@@ -1,0 +1,101 @@
+---
+- name: Create public subnet 1
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ public_subnet_1_cidr }}"
+    az: "ap-northeast-2a"
+    map_public: yes
+    state: present
+    tags:
+      Name: "project4-subnet-public1-ap-northeast-2a"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "create"    
+
+- name: Create public subnet 2
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ public_subnet_2_cidr }}"
+    az: "ap-northeast-2c"
+    map_public: yes
+    state: present
+    tags:
+      Name: "project4-subnet-public2-ap-northeast-2c"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "create"    
+
+- name: Create private subnet 1
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ private_subnet_1_cidr }}"
+    az: "ap-northeast-2a"
+    map_public: no
+    state: present
+    tags:
+      Name: "project4-subnet-private1-ap-northeast-2a"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "create"    
+
+- name: Create private subnet 2
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ private_subnet_2_cidr }}"
+    az: "ap-northeast-2c"
+    map_public: no
+    state: present
+    tags:
+      Name: "project4-subnet-private2-ap-northeast-2c"
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "create"    
+
+- name: Delete public subnet 1
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ public_subnet_1_cidr }}"
+    az: "ap-northeast-2a"
+    state: absent
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "delete"
+
+- name: Delete public subnet 2
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ public_subnet_2_cidr }}"
+    az: "ap-northeast-2c"
+    state: absent
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "delete"
+
+- name: Delete private subnet 1
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ private_subnet_1_cidr }}"
+    az: "ap-northeast-2a"
+    state: absent
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "delete"
+
+- name: Delete private subnet 2
+  amazon.aws.ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ private_subnet_2_cidr }}"
+    az: "ap-northeast-2c"
+    state: absent
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: state == "delete"
+

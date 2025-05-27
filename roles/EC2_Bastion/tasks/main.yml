@@ -1,0 +1,30 @@
+- block:
+    - name: Bastion EC2 인스턴스 생성
+      amazon.aws.ec2_instance:
+        name: "project4-bastion"
+        image_id: "{{ ami_id }}"
+        instance_type: t2.micro
+        region: "{{ region }}"
+        key_name: "{{ key }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        vpc_subnet_id: "{{ subnet_public1_id }}"  # 이미 알고 있는 퍼블릭 서브넷 ID
+        security_groups: "{{ security_groups }}"
+        tags:
+          Name: project4-bastion
+        wait: yes
+      register: bastion_instance
+  when: state == "create"
+
+- block:
+    - name: bastion EC2 인스턴스 삭제
+      amazon.aws.ec2_instance:
+        name: "project4-bastion"
+        vpc_subnet_id: "{{ subnet_public1_id }}"
+        region: "{{ region }}"
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        state: absent
+        wait: yes
+  when: state == "delete"
+

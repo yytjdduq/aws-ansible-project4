@@ -1,0 +1,39 @@
+---
+- name: Allocate Elastic IP
+  amazon.aws.ec2_eip:
+    region: "{{ region }}"
+    state: present
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  register: eip_result
+  when: state == "create"
+
+- name: Tag Elastic IP with Name
+  amazon.aws.ec2_tag:
+    region: "{{ region }}"
+    resource: "{{ eip_result.allocation_id }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    tags:
+      Name: project4-eip
+  when: state == "create"
+
+- name: Find Elastic IP Allocation ID by Name tag
+  amazon.aws.ec2_eip_info:
+    region: "{{ region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    filters:
+      "tag:Name": "project4-eip"
+  register: eip_info
+  when: state == "delete"    
+
+- name: Release Elastic IP
+  amazon.aws.ec2_eip:
+    region: "{{ region }}"
+    public_ip: "{{ eip_info.addresses[0].public_ip }}"
+    state: absent
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+  when: (eip_info.addresses | default([])) | length > 0
+  when: state == "delete"    

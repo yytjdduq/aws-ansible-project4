@@ -1,0 +1,9 @@
+- hosts: localhost
+  vars_files:
+    - ../roles/IAM_EC2/vars/vars.yml
+    - ../roles/IAM_EC2/vars/pass.yml
+      # vars:
+      #state: "create"
+      #state: "delete"
+  roles:
+    - ../roles/IAM_EC2
